@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	// normal logger
 	Info  func(context.Context, string, ...interface{})
 	Warn  func(context.Context, string, ...interface{})
 	Error func(context.Context, string, ...interface{})
@@ -17,13 +18,13 @@ var (
 )
 
 func init() {
-	fmt.Println("init logger ...")
+	fmt.Println("init normal logger ...")
 	defaultLogger := newLogger()
 	Info = defaultLogger.Info
 	Warn = defaultLogger.Warn
 	Error = defaultLogger.Error
 	Sync = defaultLogger.Sync
-	fmt.Println("init logger done.")
+	fmt.Println("init normal logger done")
 }
 
 type Logger interface {
