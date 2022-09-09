@@ -27,7 +27,7 @@ func main() {
 
 	ctx := context.Background()
 	log.Info(ctx, "initializing...")
-	s := newHttpServer(80)
+	s := newHttpServer(6800)
 	log.Error(ctx, "http fatal: %v", s.ListenAndServe())
 }
 
