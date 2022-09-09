@@ -5,16 +5,18 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/atlanssia/go2/pkg/utils"
 )
 
-func HandleTunneling(w http.ResponseWriter, r *http.Request) {
+func HandleTunneling(w *utils.LoggingResponseWriter, r *http.Request) {
 	destConn, err := net.DialTimeout("tcp", r.Host, 10*time.Second)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	hijacker, ok := w.(http.Hijacker)
+	hijacker, ok := w.ResponseWriter.(http.Hijacker)
 	if !ok {
 		http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
 		return

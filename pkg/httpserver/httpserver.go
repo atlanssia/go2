@@ -3,9 +3,11 @@ package httpserver
 import (
 	"io"
 	"net/http"
+
+	"github.com/atlanssia/go2/pkg/utils"
 )
 
-func HandleHTTP(w http.ResponseWriter, req *http.Request) {
+func HandleHTTP(w *utils.LoggingResponseWriter, req *http.Request) {
 	resp, err := http.DefaultTransport.RoundTrip(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)

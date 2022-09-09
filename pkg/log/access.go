@@ -2,42 +2,43 @@ package log
 
 import (
 	"fmt"
-	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
-const (
-	accessLogTemplate = ""
-)
-
 var (
 	// access logger
-	Access func(...interface{})
-
-	accessMap sync.Map
+	Access func(AccessLog)
 )
 
 func init() {
-	fmt.Println("init normal logger ...")
+	fmt.Println("init access logger ...")
 	accessLogger := newAccessLogger()
 	Access = accessLogger.Access
 	fmt.Println("init access logger done.")
 }
 
 type AccessLogger interface {
-	Access(...interface{})
-	Complete(...interface{})
+	Access(AccessLog)
 }
 
-func (zl *zapLogger) Access(args ...interface{}) {
-	zl.zapSugar.Infof(accessLogTemplate, args...)
+type AccessLog struct {
+	RemoteAddr           string
+	Method               string
+	Proto                string
+	RequestContentLength int64
+	Host                 string
+	RequestURI           string
+	Status               int
+	Url                  string
+	UserAgent            string
+	RequestTime          int64
 }
 
-func (zl *zapLogger) Complete(args ...interface{}) {
-	zl.zapSugar.Infof(accessLogTemplate, args...)
+func (zl *zapLogger) Access(accessLog AccessLog) {
+	zl.zapSugar.Infof("%+v", accessLog)
 }
 
 func newAccessLogger() AccessLogger {
