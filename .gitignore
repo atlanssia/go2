@@ -16,3 +16,5 @@ vendor/
 logs/
 tools/*.key
 tools/*.pem
+ca/*.key
+ca/*.pem

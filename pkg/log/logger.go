@@ -39,6 +39,9 @@ type zapLogger struct {
 }
 
 func TraceId(ctx context.Context) string {
+	if ctx == nil {
+		return "unknown_trace_id"
+	}
 	traceId, _ := ctx.Value("trace_id").(string)
 	return traceId
 }

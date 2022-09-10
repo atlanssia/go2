@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"sync"
 	"time"
 
 	"github.com/atlanssia/go2/pkg/httpproxy"
@@ -24,14 +25,45 @@ func main() {
 	}()
 
 	// defer cancelWeb()
+	log.Info(nil, "system initializing...")
+	// defer s.Shutdown()
+	wg := &sync.WaitGroup{}
+	go listenHttp(wg)
+	go listenHttps(wg)
+	log.Info(nil, "system running...")
+	wg.Wait()
+	log.Info(nil, "system exit")
+}
 
-	ctx := context.Background()
-	log.Info(ctx, "initializing...")
-	s := newHttpServer(6800)
-	log.Error(ctx, "http fatal: %v", s.ListenAndServe())
+func listenHttp(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
+	startListening(6880, "", "")
+}
+
+func listenHttps(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
+	cert := "ca/server.pem"
+	key := "ca/server.key"
+	startListening(6843, cert, key)
+}
+
+func startListening(port int, cert string, key string) {
+	s := newHttpServer(port)
+	var err error
+	if cert != "" && key != "" {
+		err = s.ListenAndServeTLS(cert, key)
+	} else {
+		err = s.ListenAndServe()
+	}
+	if err != nil {
+		log.Error(nil, "system exit: %v", err)
+	}
 }
 
 func newHttpServer(port int) *http.Server {
+	log.Info(nil, "initializing listening on port %d", port)
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", port),
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
