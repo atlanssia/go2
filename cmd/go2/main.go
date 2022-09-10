@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/armon/go-socks5"
 	"github.com/atlanssia/go2/pkg/httpproxy"
 	"github.com/atlanssia/go2/pkg/httpserver"
 	"github.com/atlanssia/go2/pkg/log"
@@ -28,8 +29,11 @@ func main() {
 	log.Info(nil, "system initializing...")
 	// defer s.Shutdown()
 	wg := &sync.WaitGroup{}
+
 	go listenHttp(wg)
 	go listenHttps(wg)
+	go listenSocks5(wg)
+
 	log.Info(nil, "system running...")
 	time.Sleep(time.Second)
 	wg.Wait()
@@ -59,7 +63,7 @@ func startListening(port int, cert string, key string) {
 		err = s.ListenAndServe()
 	}
 	if err != nil {
-		log.Error(nil, "system exit: %v", err)
+		log.Error(nil, "listen http(s) on [:%d] error: %v", port, err)
 	}
 }
 
@@ -95,4 +99,30 @@ func newHttpServer(port int) *http.Server {
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 	}
 	return server
+}
+
+func listenSocks5(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
+
+	port := 6802
+	log.Info(nil, "initializing socks5 listening on port %d", port)
+
+	// Create a SOCKS5 server
+	server, err := newSocks5Server()
+	if err != nil {
+		log.Error(nil, "new socks5 server error, skip: %v", err)
+		return
+	}
+
+	// Create SOCKS5 proxy
+	if err := server.ListenAndServe("tcp", fmt.Sprintf(":%d", port)); err != nil {
+		log.Error(nil, "listen socks5 error, skip: %v", err)
+		return
+	}
+}
+
+func newSocks5Server() (*socks5.Server, error) {
+	conf := &socks5.Config{}
+	return socks5.New(conf)
 }
