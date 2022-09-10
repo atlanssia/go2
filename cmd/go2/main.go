@@ -39,7 +39,7 @@ func main() {
 func listenHttp(wg *sync.WaitGroup) {
 	wg.Add(1)
 	defer wg.Done()
-	startListening(6880, "", "")
+	startListening(6800, "", "")
 }
 
 func listenHttps(wg *sync.WaitGroup) {
@@ -47,7 +47,7 @@ func listenHttps(wg *sync.WaitGroup) {
 	defer wg.Done()
 	cert := "ca/server.pem"
 	key := "ca/server.key"
-	startListening(6843, cert, key)
+	startListening(6801, cert, key)
 }
 
 func startListening(port int, cert string, key string) {
