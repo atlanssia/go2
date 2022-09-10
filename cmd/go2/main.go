@@ -31,6 +31,7 @@ func main() {
 	go listenHttp(wg)
 	go listenHttps(wg)
 	log.Info(nil, "system running...")
+	time.Sleep(time.Second)
 	wg.Wait()
 	log.Info(nil, "system exit")
 }
