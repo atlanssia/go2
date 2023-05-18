@@ -43,7 +43,7 @@ func main() {
 func listenHttp(wg *sync.WaitGroup) {
 	wg.Add(1)
 	defer wg.Done()
-	startListening(6800, "", "")
+	startListening(1233, "", "")
 }
 
 func listenHttps(wg *sync.WaitGroup) {
@@ -51,7 +51,7 @@ func listenHttps(wg *sync.WaitGroup) {
 	defer wg.Done()
 	cert := "ca/server.pem"
 	key := "ca/server.key"
-	startListening(6801, cert, key)
+	startListening(1232, cert, key)
 }
 
 func startListening(port int, cert string, key string) {
@@ -105,7 +105,7 @@ func listenSocks5(wg *sync.WaitGroup) {
 	wg.Add(1)
 	defer wg.Done()
 
-	port := 6802
+	port := 1234
 	log.Info(nil, "initializing socks5 listening on port %d", port)
 
 	// Create a SOCKS5 server
@@ -123,6 +123,13 @@ func listenSocks5(wg *sync.WaitGroup) {
 }
 
 func newSocks5Server() (*socks5.Server, error) {
-	conf := &socks5.Config{}
+	// Credentials
+        creds := socks5.StaticCredentials{
+                "foo": "bar",
+        }
+        cator := socks5.UserPassAuthenticator{Credentials: creds}
+        conf := &socks5.Config{
+                AuthMethods: []socks5.Authenticator{cator},
+        }
 	return socks5.New(conf)
 }
